@@ -4,9 +4,10 @@
   "description": "In-browser distraction-free simple writing experience.",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -r dist/*",
-    "build-dev": "npm run clean && webpack -d --mode development",
-    "build-prod": "npm run clean && webpack -p --mode production",
+    "clean": "rm -r dist/* || true",
+    "copy-static-files": "cp -r src/images/app-icon/* dist/writers-friend",
+    "build-dev": "npm run clean && webpack -d --mode development && npm run copy-static-files",
+    "build-prod": "npm run clean && webpack -p --mode production && npm run copy-static-files",
     "start": "webpack-dev-server --hot --mode development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -45,6 +46,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.17.0",
     "eslint-plugin-react-hooks": "^2.3.0",
+    "file-loader": "^5.0.2",
     "html-webpack-plugin": "^3.2.0",
     "postcss-loader": "^3.0.0",
     "prettier": "^1.19.1",

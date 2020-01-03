@@ -6,9 +6,9 @@ const package = require("./package.json");
 const config = {
   entry: ["./src/index.js"],
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "dist/writers-friend"),
     filename: "[name].[hash].js",
-    publicPath: "/"
+    publicPath: "/writers-friend/"
   },
   module: {
     rules: [
@@ -16,21 +16,6 @@ const config = {
         test: /\.(js|jsx)$/,
         use: "babel-loader",
         exclude: /node_modules/
-      },
-      {
-        test: /\.svg$/,
-        use: "file-loader"
-      },
-      {
-        test: /\.png$/,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              mimetype: "image/png"
-            }
-          }
-        ]
       },
       {
         test: /\.css$/,
@@ -53,7 +38,7 @@ const config = {
         ]
       },
       {
-        test: /\.(txt)$/i,
+        test: /\.(txt|ico|svg)$/i,
         use: [
           {
             loader: "file-loader"
@@ -67,7 +52,7 @@ const config = {
     alias: {}
   },
   devServer: {
-    contentBase: "./dist",
+    contentBase: "./dist/writers-friend",
     open: true,
     historyApiFallback: true
   },
@@ -100,10 +85,9 @@ const config = {
 };
 
 module.exports = (env, argv) => {
-  // if (argv.hot) {
-  //   // Cannot use 'contenthash' when hot reloading is enabled.
-  //   config.output.filename = "[name].[hash].js";
-  // }
+  if (argv.mode === "development") {
+    config.output.publicPath = "/";
+  }
 
   return config;
 };

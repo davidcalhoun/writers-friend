@@ -15,6 +15,7 @@ import FormatListNumberedIcon from "@material-ui/icons/FormatListNumbered";
 import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted";
 import FullscreenIcon from "@material-ui/icons/Fullscreen";
 import FullscreenExitIcon from "@material-ui/icons/FullscreenExit";
+import SpellcheckIcon from "@material-ui/icons/Spellcheck";
 
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -76,6 +77,7 @@ const RichTextExample = () => {
   const [value, setValue] = useState(
     initialValueFromLocalStorage || initialValue
   );
+  const [spellcheckActive, setSpellcheckActive] = useState(false);
   const [lastSavedTimeMS, setLastSavedMS] = useState(0);
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
@@ -86,9 +88,9 @@ const RichTextExample = () => {
   }
   useEffect(init, []);
 
-  useEffect(() => {
-    console.log("ok!", Date.now());
-  }, [lastSavedTimeMS]);
+  function handleSpellcheckClick(event) {
+    setSpellcheckActive(!spellcheckActive);
+  }
 
   async function handleChange(value) {
     // Update state immediately.
@@ -98,8 +100,10 @@ const RichTextExample = () => {
     setLastSavedMS(timeMS);
   }
 
+  // Note: need to add spellCheck to container because of a Slate hack/workaround with FF.
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} spellCheck={ spellcheckActive }>
       <Slate editor={editor} value={value} onChange={handleChange}>
         <Toolbar>
           <MarkButton format="bold" icon={FormatBoldIcon} />
@@ -111,6 +115,14 @@ const RichTextExample = () => {
           <BlockButton format="block-quote" icon={FormatQuoteIcon} />
           <BlockButton format="numbered-list" icon={FormatListNumberedIcon} />
           <BlockButton format="bulleted-list" icon={FormatListBulletedIcon} />
+          <Tooltip title="Spellcheck" enterDelay={500}>
+            <Button
+              onMouseDown={handleSpellcheckClick}
+              active={spellcheckActive}
+            >
+              <SpellcheckIcon />
+            </Button>
+          </Tooltip>
           <Tooltip title="Toggle fullscreen mode" enterDelay={500}>
             <Button
               onMouseDown={toggleFullScreen}
@@ -123,7 +135,7 @@ const RichTextExample = () => {
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           placeholder="Enter some rich text…"
-          spellCheck
+          spellCheck={ spellcheckActive }
           autoFocus
           onKeyDown={event => {
             for (const hotkey in HOTKEYS) {

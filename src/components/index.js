@@ -24,6 +24,9 @@ export const Button = React.forwardRef(
             : active
             ? "black"
             : "#ccc"};
+          &:hover {
+            color: #797979;
+          }
         `
       )}
     />
