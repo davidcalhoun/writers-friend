@@ -66,7 +66,7 @@ const config = {
         title: "Writer's Friend"
       },
       minify: false,
-      chunks: ["vendors", "runtime", "main"],
+      chunks: ["vendor", "react", "runtime", "main"],
       chunksSortMode: "manual" // manual: sort in the order of the chunks array
     })
   ],
@@ -74,10 +74,28 @@ const config = {
     runtimeChunk: "single",
     splitChunks: {
       cacheGroups: {
+        react: {
+          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+          name: 'react',
+          chunks: 'all'
+        },
         vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: "vendors",
-          chunks: "all"
+          test(mod) {
+            // exclude anything outside node modules
+            if (!mod.context.includes('node_modules')) {
+              return false;
+            }
+
+            // exclude react and react-dom
+            if (/[\\/]node_modules[\\/](react|react-dom)[\\/]/.test(mod.context)) {
+              return false;
+            }
+
+            // return all other node modules
+            return true;
+          },
+          name: 'vendor',
+          chunks: 'all'
         }
       }
     }
