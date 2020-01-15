@@ -104,7 +104,7 @@ const RichTextExample = () => {
 
   return (
     <div className={styles.container} spellCheck={ spellcheckActive }>
-      <Slate editor={editor} value={value} onChange={handleChange}>
+      <Slate className={styles.slateContainer} editor={editor} value={value} onChange={handleChange}>
         <Toolbar>
           <MarkButton format="bold" icon={FormatBoldIcon} />
           <MarkButton format="italic" icon={FormatItalicIcon} />

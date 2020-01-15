@@ -22,7 +22,7 @@ export const Button = React.forwardRef(
               ? "white"
               : "#aaa"
             : active
-            ? "black"
+            ? "gray"
             : "#ccc"};
           &:hover {
             color: #797979;
@@ -147,7 +147,7 @@ export const Toolbar = React.forwardRef(({ className, ...props }, ref) => (
         margin-bottom: 20px;
         position: sticky;
         top: 0.5rem;
-        background: white;
+        background: inherit;
       `
     )}
   />
