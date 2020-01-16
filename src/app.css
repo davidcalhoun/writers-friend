@@ -3,14 +3,19 @@
 	width: 100%;
 	margin: 0.25rem auto;
 	flex: 1;
-	border: 2px solid #eee;
-	padding: 0rem 1rem 0;
 	position: relative;
 	background-color: inherit;
+	display: flex;
 }
 
-.slateContainer {
-	background-color: inherit;
+.fileBrowser {
+
+}
+
+.richEdit {
+	flex: 1;
+	border: 2px solid #eee;
+	padding: 0rem 1rem 0;
 }
 
 :global #app {

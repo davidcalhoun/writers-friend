@@ -1,0 +1,28 @@
+.container {
+
+}
+
+.expand {
+	white-space: pre;
+	height: 1rem;
+}
+
+.browser {
+
+}
+
+.expandOpen {
+	width: 4rem;
+}
+
+.expandClosed {
+	width: 1rem;
+}
+
+.expandClosed .browser {
+	display: none;
+}
+
+.file {
+	cursor: pointer;
+}

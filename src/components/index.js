@@ -6,6 +6,9 @@ import { format, formatDistance, formatRelative, subDays } from 'date-fns';
 
 import { useUpdateTime } from "../utils";
 
+export { default as FileBrowser } from "./FileBrowser";
+export { default as RichText } from "./RichText";
+
 // TODO convert emotion CSS to PostCSS
 
 export const Button = React.forwardRef(

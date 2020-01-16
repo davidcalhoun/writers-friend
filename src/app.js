@@ -17,11 +17,11 @@ import FullscreenIcon from "@material-ui/icons/Fullscreen";
 import FullscreenExitIcon from "@material-ui/icons/FullscreenExit";
 import SpellcheckIcon from "@material-ui/icons/Spellcheck";
 
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from "@material-ui/core/Tooltip";
 
-import { Button, Icon, Toolbar, LastSaved } from "./components";
+import { Button, Icon, Toolbar, LastSaved, FileBrowser } from "./components";
 
-import { debounce } from "./utils";
+import { debounce, getFile, setFile, getFileMeta } from "./utils";
 import styles from "./app.css";
 
 const HOTKEYS = {
@@ -33,33 +33,7 @@ const HOTKEYS = {
 
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
-const getFromLocalStorage = docName => {
-  const val = localStorage.getItem(docName);
-
-  let parsedVal = null;
-
-  if (val === null) return parsedVal;
-
-  try {
-    parsedVal = JSON.parse(val);
-  } catch (e) {
-    console.error(e);
-  }
-
-  return parsedVal;
-};
-
-const setLocalStorage = (docName, value) => {
-  const stringifiedVal = JSON.stringify(value);
-
-  localStorage.setItem(docName, stringifiedVal);
-
-  const lastSavedTimeMS = Date.now();
-
-  return lastSavedTimeMS;
-};
-
-const debouncedSetLocalStorage = debounce(setLocalStorage, 3000);
+const debouncedSetFile = debounce(setFile, 3000);
 
 function toggleFullScreen() {
   if (!document.fullscreenElement) {
@@ -71,17 +45,15 @@ function toggleFullScreen() {
   }
 }
 
-const RichTextExample = () => {
-  const docName = "foo";
-  const initialValueFromLocalStorage = getFromLocalStorage(docName);
-  const [value, setValue] = useState(
-    initialValueFromLocalStorage || initialValue
-  );
+const Container = () => {
+  const [openFile, setOpenFile] = useState({});
   const [spellcheckActive, setSpellcheckActive] = useState(false);
   const [lastSavedTimeMS, setLastSavedMS] = useState(0);
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+
+  const { name = "", text = [], id = 0 } = openFile;
 
   function init() {
     document.documentElement.classList.remove("loading");
@@ -92,63 +64,83 @@ const RichTextExample = () => {
     setSpellcheckActive(!spellcheckActive);
   }
 
-  async function handleChange(value) {
+  async function handleChange(newText) {
     // Update state immediately.
-    setValue(value);
+    setOpenFile({
+      ...openFile,
+      text: newText
+    });
 
-    const timeMS = await debouncedSetLocalStorage(docName, value);
-    setLastSavedMS(timeMS);
+    await debouncedSetFile(id, newText);
+    setLastSavedMS(Date.now());
+  }
+
+  function handleFileSelect(id) {
+    const { name, text } = getFile(id);
+
+    setOpenFile({
+      name,
+      text,
+      id
+    });
+
+    // TODO update doc title with name
   }
 
   // Note: need to add spellCheck to container because of a Slate hack/workaround with FF.
 
   return (
-    <div className={styles.container} spellCheck={ spellcheckActive }>
-      <Slate className={styles.slateContainer} editor={editor} value={value} onChange={handleChange}>
-        <Toolbar>
-          <MarkButton format="bold" icon={FormatBoldIcon} />
-          <MarkButton format="italic" icon={FormatItalicIcon} />
-          <MarkButton format="underline" icon={FormatUnderlinedIcon} />
-          <MarkButton format="code" icon={CodeIcon} />
-          <BlockButton format="heading-one" icon={LooksOneIcon} />
-          <BlockButton format="heading-two" icon={LooksTwoIcon} />
-          <BlockButton format="block-quote" icon={FormatQuoteIcon} />
-          <BlockButton format="numbered-list" icon={FormatListNumberedIcon} />
-          <BlockButton format="bulleted-list" icon={FormatListBulletedIcon} />
-          <Tooltip title="Spellcheck" enterDelay={500}>
-            <Button
-              onMouseDown={handleSpellcheckClick}
-              active={spellcheckActive}
-            >
-              <SpellcheckIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Toggle fullscreen mode" enterDelay={500}>
-            <Button
-              onMouseDown={toggleFullScreen}
-            >
-              <FullscreenIcon />
-            </Button>
-          </Tooltip>
-        </Toolbar>
-        <Editable
-          renderElement={renderElement}
-          renderLeaf={renderLeaf}
-          placeholder="Enter some rich text…"
-          spellCheck={ spellcheckActive }
-          autoFocus
-          onKeyDown={event => {
-            for (const hotkey in HOTKEYS) {
-              if (isHotkey(hotkey, event)) {
-                event.preventDefault();
-                const mark = HOTKEYS[hotkey];
-                toggleMark(editor, mark);
+    <div className={styles.container} spellCheck={spellcheckActive}>
+      <FileBrowser onFileSelect={handleFileSelect} className={styles.fileBrowser} />
+      <div className={styles.richEdit}>
+        <Slate
+          editor={editor}
+          value={text}
+          onChange={handleChange}
+        >
+          <Toolbar>
+            <MarkButton format="bold" icon={FormatBoldIcon} />
+            <MarkButton format="italic" icon={FormatItalicIcon} />
+            <MarkButton format="underline" icon={FormatUnderlinedIcon} />
+            <MarkButton format="code" icon={CodeIcon} />
+            <BlockButton format="heading-one" icon={LooksOneIcon} />
+            <BlockButton format="heading-two" icon={LooksTwoIcon} />
+            <BlockButton format="block-quote" icon={FormatQuoteIcon} />
+            <BlockButton format="numbered-list" icon={FormatListNumberedIcon} />
+            <BlockButton format="bulleted-list" icon={FormatListBulletedIcon} />
+            <Tooltip title="Spellcheck" enterDelay={500}>
+              <Button
+                onMouseDown={handleSpellcheckClick}
+                active={spellcheckActive}
+              >
+                <SpellcheckIcon />
+              </Button>
+            </Tooltip>
+            <Tooltip title="Toggle fullscreen mode" enterDelay={500}>
+              <Button onMouseDown={toggleFullScreen}>
+                <FullscreenIcon />
+              </Button>
+            </Tooltip>
+          </Toolbar>
+          <Editable
+            renderElement={renderElement}
+            renderLeaf={renderLeaf}
+            placeholder="Enter some rich text…"
+            spellCheck={spellcheckActive}
+            autoFocus
+            onKeyDown={event => {
+              for (const hotkey in HOTKEYS) {
+                if (isHotkey(hotkey, event)) {
+                  event.preventDefault();
+                  const mark = HOTKEYS[hotkey];
+                  toggleMark(editor, mark);
+                }
               }
-            }
-          }}
-        />
-        <LastSaved time={lastSavedTimeMS} />
-      </Slate>
+            }}
+          />
+          <LastSaved time={lastSavedTimeMS} />
+        </Slate>
+      </div>
     </div>
   );
 };
@@ -264,41 +256,4 @@ const MarkButton = ({ format, icon: IconElement }) => {
   );
 };
 
-const initialValue = [
-  {
-    type: "paragraph",
-    children: [
-      { text: "This is editable " },
-      { text: "rich", bold: true },
-      { text: " text, " },
-      { text: "much", italic: true },
-      { text: " better than a " },
-      { text: "<textarea>", code: true },
-      { text: "!" }
-    ]
-  },
-  {
-    type: "paragraph",
-    children: [
-      {
-        text:
-          "Since it's rich text, you can do things like turn a selection of text "
-      },
-      { text: "bold", bold: true },
-      {
-        text:
-          ", or add a semantically rendered block quote in the middle of the page, like this:"
-      }
-    ]
-  },
-  {
-    type: "block-quote",
-    children: [{ text: "A wise quote." }]
-  },
-  {
-    type: "paragraph",
-    children: [{ text: "Try it out for yourself!" }]
-  }
-];
-
-export default RichTextExample;
+export default Container;
