@@ -1,5 +1,6 @@
 .container {
-
+	overflow: hidden;
+	max-width: 12em;
 }
 
 .expand {
@@ -7,12 +8,8 @@
 	height: 1rem;
 }
 
-.browser {
-
-}
-
 .expandOpen {
-	width: 4rem;
+
 }
 
 .expandClosed {
@@ -23,6 +20,27 @@
 	display: none;
 }
 
+.files {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
 .file {
 	cursor: pointer;
+}
+
+.file:hover,
+.file:active,
+.file:focus {
+	background-color: gray;
+}
+
+.fileSelected {
+	background: red;
+}
+
+.fileEditInput {
+	font: inherit;
+	border: 0;
 }
