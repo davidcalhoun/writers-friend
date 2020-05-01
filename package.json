@@ -9,7 +9,8 @@
     "build-dev": "npm run clean && webpack -d --mode development && npm run copy-static-files",
     "build-prod": "npm run clean && webpack -p --mode production && npm run copy-static-files",
     "start": "webpack-dev-server --hot --mode development",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bump": "! npm outdated && npm update && npm audit fix || echo 'Package up to date'"
   },
   "repository": {
     "type": "git",
