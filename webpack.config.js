@@ -31,8 +31,9 @@ const config = {
           {
             loader: "postcss-loader",
             options: {
-              ident: "postcss",
-              plugins: () => [require("autoprefixer")]
+              postcssOptions: {
+                plugins: () => [require("autoprefixer")]
+              }
             }
           }
         ]
@@ -52,7 +53,9 @@ const config = {
     alias: {}
   },
   devServer: {
-    contentBase: "./dist/writers-friend",
+    static: {
+      directory: path.resolve(__dirname, 'dist', 'writers-friend'),
+    },
     open: true,
     historyApiFallback: true
   },
